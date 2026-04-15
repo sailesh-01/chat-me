@@ -17,30 +17,35 @@ if "user" not in st.session_state:
     
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        st.markdown("<h1 style='text-align: center;'>🛸 AstroChat</h1>", unsafe_allow_html=True)
-        st.markdown("<p style='text-align: center; opacity: 0.7;'>Antigravity Real-Time Messaging</p>", unsafe_allow_html=True)
+        st.markdown("""
+        <div class="glass-card">
+            <h1 style='text-align: center; margin-bottom: 0;'>🛸 AstroChat</h1>
+            <p style='text-align: center; opacity: 0.6; margin-bottom: 30px;'>Antigravity Messaging</p>
+        </div>
+        """, unsafe_allow_html=True)
         
-        mode = st.radio("Mode", ["Login", "Signup"], label_visibility="collapsed", horizontal=True)
-        
-        username = st.text_input("Username")
-        password = st.text_input("Password", type="password")
-        
-        if mode == "Signup":
-            display_name = st.text_input("Display Name")
-            if st.button("Create Account", use_container_width=True):
-                success, msg = auth.signup_user(username, password, display_name)
-                if success:
-                    st.success(msg)
-                    time.sleep(1)
-                    st.rerun()
-                else:
-                    st.error(msg)
-        else:
-            if st.button("Login", use_container_width=True):
-                if auth.login_user(username, password):
-                    st.rerun()
-                else:
-                    st.error("Invalid username or password")
+        with st.container():
+            mode = st.radio("Mode", ["Login", "Signup"], label_visibility="collapsed", horizontal=True)
+            
+            username = st.text_input("Username", placeholder="Explorer ID")
+            password = st.text_input("Password", type="password", placeholder="Access Key")
+            
+            if mode == "Signup":
+                display_name = st.text_input("Display Name", placeholder="Radio Name")
+                if st.button("Initialize Account", use_container_width=True):
+                    success, msg = auth.signup_user(username, password, display_name)
+                    if success:
+                        st.success(msg)
+                        time.sleep(1)
+                        st.rerun()
+                    else:
+                        st.error(msg)
+            else:
+                if st.button("Establish Connection", use_container_width=True):
+                    if auth.login_user(username, password):
+                        st.rerun()
+                    else:
+                        st.error("Protocol Error: Invalid Credentials")
 else:
     # Sidebar Navigation
     with st.sidebar:
@@ -76,17 +81,20 @@ else:
             col_list, col_chat = st.columns([1, 3])
             
             with col_list:
-                st.markdown("### Universe")
-                # Simple contact selector
+                st.markdown("### 🔭 Sectors")
+                # Simple contact selector with nicer label
                 contact_names = [u[1] for u in users]
-                selected_name = st.radio("Sector", contact_names, label_visibility="collapsed")
+                selected_name = st.radio("Select Sector", contact_names, label_visibility="collapsed")
                 
                 # Get selected user object
                 selected_user = next(u for u in users if u[1] == selected_name)
                 selected_username = selected_user[0]
+                
+                st.markdown("---")
+                st.markdown(f"**Coordinates:** {selected_username}@Astro")
 
             with col_chat:
-                st.markdown(f"### 🛰️ Chatting with {selected_name}")
+                st.markdown(f"### 🛰️ {selected_name}")
                 
                 # Container for messages with custom scroll CSS
                 st.markdown('<div class="chat-container">', unsafe_allow_html=True)
