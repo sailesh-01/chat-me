@@ -38,19 +38,20 @@ if "user" not in st.session_state:
         username = st.text_input("Username", placeholder="JAG ID")
         password = st.text_input("Password", type="password", placeholder="Access Key")
         
-        if mode == "Signup":
-            display_name = st.text_input("Display Name", placeholder="Callsign")
-            if st.button("Initialize Account", use_container_width=True):
-                with st.spinner("Initializing Jaguar Profile..."):
-                    success, msg = auth.signup_user(username, password, display_name)
-                    if success:
-                        st.success(msg)
-                        st.session_state.auth_error = False
-                        time.sleep(1.5)
-                        st.rerun()
-                    else:
-                        st.error(msg)
-                        st.session_state.auth_error = True
+            if mode == "Signup":
+                display_name = st.text_input("Display Name", placeholder="Callsign")
+                if st.button("Initialize Account", use_container_width=True):
+                    with st.spinner("Initializing Jaguar Profile..."):
+                        success, result = auth.signup_user(username, password, display_name)
+                        if success:
+                            st.success("Welcome to the Jaguars! Account initialized for this session.")
+                            st.info("⚠️ **Action Required for Persistence:**")
+                            st.code(result, language="python")
+                            st.caption("To keep this account permanently, paste the line above into `storage.py` and push to GitHub.")
+                            st.session_state.auth_error = False
+                        else:
+                            st.error(result)
+                            st.session_state.auth_error = True
         else:
             if st.button("Establish Connection", use_container_width=True):
                 with st.spinner("Establishing Secure Comm-Link..."):

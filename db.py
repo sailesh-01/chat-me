@@ -38,7 +38,10 @@ def send_message(sender, receiver, content):
     conn.commit()
     conn.close()
 
-def get_messages(user1, user2, limit=50):
+def get_messages(user1, user2, limit=100):
+    import storage
+    
+    # 1. Get Live Session Messages (SQLite)
     conn = sqlite3.connect(DB_FILE)
     cursor = conn.cursor()
     cursor.execute("""
@@ -46,9 +49,21 @@ def get_messages(user1, user2, limit=50):
     WHERE (sender=? AND receiver=?) OR (sender=? AND receiver=?)
     ORDER BY timestamp ASC LIMIT ?
     """, (user1, user2, user2, user1, limit))
-    messages = cursor.fetchall()
+    live_msgs = cursor.fetchall()
     conn.close()
-    return messages
+    
+    # 2. Get Permanent Legacy Messages (storage.py)
+    legacy_msgs = []
+    for msg in storage.LEGACY_CHAT:
+        s, r, c, t = msg
+        if (s == user1 and r == user2) or (s == user2 and r == user1) or (r == "any"):
+            legacy_msgs.append(msg)
+            
+    # 3. Merge and Sort
+    all_msgs = list(live_msgs) + legacy_msgs
+    all_msgs.sort(key=lambda x: x[3]) # Sort by timestamp
+    
+    return all_msgs[-limit:] # Return the latest entries
 
 def get_all_users(exclude_user=None):
     conn = sqlite3.connect(DB_FILE)
