@@ -15,11 +15,11 @@ utils.inject_antigravity_styles()
 if "user" not in st.session_state:
     st.session_state.auth_mode = st.session_state.get("auth_mode", "Login")
     
+    # Background Trigger for Login
+    st.markdown('<div class="login-container"></div>', unsafe_allow_html=True)
+    
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        # Mascot Image
-        st.image("static/login_mascot.png", use_container_width=True)
-        
         st.markdown('<div class="glow-aura">', unsafe_allow_html=True)
         with st.container():
             st.markdown("""
@@ -50,6 +50,7 @@ if "user" not in st.session_state:
                         st.rerun()
                     else:
                         st.error("Protocol Error: Invalid Credentials")
+        st.markdown('</div>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
 else:
     # Sidebar Navigation

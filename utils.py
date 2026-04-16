@@ -66,7 +66,18 @@ def inject_antigravity_styles():
         background: radial-gradient(circle at center, #151515 0%, #080808 100%) !important;
     }
 
-    /* Aura Container for Login */
+    /* Full-screen Login Background */
+    .login-container {
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background-image: linear-gradient(rgba(8, 8, 8, 0.7), rgba(8, 8, 8, 0.7)), url("app/static/login_mascot.png");
+        background-size: cover;
+        background-position: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: -1;
+    }
     .glow-aura {
         position: relative;
         padding: 4px;
