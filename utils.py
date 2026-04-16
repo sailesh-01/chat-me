@@ -40,7 +40,7 @@ def message_bubble(content, sender, is_sent, timestamp, avatar_color="#7B5EA7", 
             {avatar_html}
             <div class="bubble-tail-received">
                 <div class="bubble">
-                    {!is_grouped and f'<div class="sender-name" style="color:{avatar_color}">{sender}</div>' or ''}
+                    {f'<div class="sender-name" style="color:{avatar_color}">{sender}</div>' if not is_grouped else ''}
                     <div class="bubble-content">{content}</div>
                     <div class="bubble-meta">
                         <span class="time">{time_str}</span>
