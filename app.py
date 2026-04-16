@@ -4,6 +4,8 @@ import db
 import auth
 import utils
 import time
+import random
+import base64
 
 # Initialize database
 db.init_db()
@@ -188,24 +190,24 @@ else:
                 
                 st.markdown('</div>', unsafe_allow_html=True)
                 
-                # Input area
-                with st.container():
-                    col_input, col_file = st.columns([5, 1])
-                    with col_input:
-                        user_input = st.chat_input(f"Send intel to {selected_name}...")
-                        import base64
-                        if user_input:
-                            db.send_message(st.session_state.user['username'], selected_username, user_input)
-                            st.rerun()
-                        
-                        # Update Typing Status
-                        if st.session_state.get('typing_active', False) or user_input:
-                            db.update_typing_status(st.session_state.user['username'], selected_username)
-                    
-                    with col_file:
-                        intel_file = st.file_uploader("INTEL", type=['png', 'jpg', 'jpeg'], label_visibility="collapsed")
-                        if intel_file:
-                            byte_data = intel_file.read()
-                            base64_img = f"data:image/png;base64,{base64.b64encode(byte_data).decode()}"
-                            db.send_message(st.session_state.user['username'], selected_username, base64_img, msg_type='image')
-                            st.rerun()
+                # Input area - Apex Tier
+                user_input = st.chat_input(f"Send intel to {selected_name}...")
+                
+                if user_input:
+                    db.send_message(st.session_state.user['username'], selected_username, user_input)
+                    st.rerun()
+                
+                # Update Typing Status
+                if user_input:
+                    db.update_typing_status(st.session_state.user['username'], selected_username)
+                
+                # Intel Upload (Image)
+                with st.expander("📡 UPLOAD INTEL", expanded=False):
+                    intel_file = st.file_uploader("Select Intel File", type=['png', 'jpg', 'jpeg'], label_visibility="collapsed")
+                    if intel_file:
+                        byte_data = intel_file.read()
+                        base64_img = f"data:image/png;base64,{base64.b64encode(byte_data).decode()}"
+                        db.send_message(st.session_state.user['username'], selected_username, base64_img, msg_type='image')
+                        st.success("Intel Transmitted.")
+                        time.sleep(0.5)
+                        st.rerun()
