@@ -17,14 +17,18 @@ if "user" not in st.session_state:
     
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        st.markdown("""
-        <div class="glass-card">
-            <h1 style='text-align: center; margin-bottom: 0; color: #FFB800;'>🐆 Jaguars</h1>
-            <p style='text-align: center; opacity: 0.6; margin-bottom: 30px;'>Elite Multi-User Messaging</p>
-        </div>
-        """, unsafe_allow_html=True)
+        # Mascot Image
+        st.image("static/login_mascot.png", use_container_width=True)
         
+        st.markdown('<div class="glow-aura">', unsafe_allow_html=True)
         with st.container():
+            st.markdown("""
+            <div class="glass-card">
+                <h1 style='text-align: center; margin-bottom: 0; color: #FFB800;'>🐆 JAGUARS</h1>
+                <p style='text-align: center; opacity: 0.6; margin-bottom: 30px; letter-spacing: 2px;'>ELITE COMM-LINK</p>
+            </div>
+            """, unsafe_allow_html=True)
+            
             mode = st.radio("Mode", ["Login", "Signup"], label_visibility="collapsed", horizontal=True)
             
             username = st.text_input("Username", placeholder="JAG ID")
@@ -46,6 +50,7 @@ if "user" not in st.session_state:
                         st.rerun()
                     else:
                         st.error("Protocol Error: Invalid Credentials")
+        st.markdown('</div>', unsafe_allow_html=True)
 else:
     # Sidebar Navigation
     with st.sidebar:
