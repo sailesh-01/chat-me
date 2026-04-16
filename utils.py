@@ -1,4 +1,55 @@
 import streamlit as st
+import time
+
+def date_divider(date_str):
+    st.markdown(f"""
+    <div style="display: flex; align-items: center; margin: 24px 0; opacity: 0.4;">
+        <div style="flex-grow: 1; height: 1px; background: rgba(123, 94, 167, 0.3);"></div>
+        <div style="padding: 0 15px; font-size: 11px; letter-spacing: 2px; text-transform: uppercase;">{date_str}</div>
+        <div style="flex-grow: 1; height: 1px; background: rgba(123, 94, 167, 0.3);"></div>
+    </div>
+    """, unsafe_allow_html=True)
+
+def message_bubble(content, sender, is_sent, timestamp, avatar_color="#7B5EA7", is_grouped=False):
+    alignment = "sent" if is_sent else "received"
+    time_str = time.strftime("%H:%M", time.localtime(timestamp))
+    initials = "".join([n[0] for n in sender.split()[:2]]).upper()
+    
+    # Hide avatar and name if grouped
+    avatar_html = ""
+    if not is_grouped:
+        avatar_html = f'<div class="avatar" style="background: {avatar_color};">{initials}</div>'
+    
+    # Message layout changes based on sender
+    msg_layout = ""
+    if is_sent:
+        msg_layout = f"""
+        <div class="message-row sent {'grouped' if is_grouped else ''}">
+            <div class="bubble-container">
+                <div class="bubble">
+                    {content}
+                    <div class="message-info">{time_str}</div>
+                    <div class="reactions">🛸 ✨ 👍</div>
+                </div>
+            </div>
+            {avatar_html}
+        </div>
+        """
+    else:
+        msg_layout = f"""
+        <div class="message-row received {'grouped' if is_grouped else ''}">
+            {avatar_html}
+            <div class="bubble-container">
+                <div class="bubble">
+                    {content}
+                    <div class="message-info">{sender} • {time_str}</div>
+                    <div class="reactions">🔭 ❤️ 🌌</div>
+                </div>
+            </div>
+        </div>
+        """
+    
+    st.markdown(msg_layout, unsafe_allow_html=True)
 
 def inject_antigravity_styles():
     st.markdown("""
@@ -51,6 +102,117 @@ def inject_antigravity_styles():
         to { transform: translate(-300px, -300px); }
     }
 
+    /* Message Interface */
+    .chat-container {
+        display: flex;
+        flex-direction: column;
+        gap: 4px; /* Default gap for grouping */
+        padding: 20px;
+        max-height: 65vh;
+        overflow-y: auto;
+    }
+
+    .message-row {
+        display: flex;
+        align-items: flex-end;
+        gap: 12px;
+        margin-bottom: 2px;
+        animation: bubbleIn 0.4s ease-out both;
+    }
+
+    .message-row.sent {
+        justify-content: flex-end;
+    }
+
+    .message-row.grouped {
+        margin-top: -8px;
+    }
+
+    .avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 600;
+        color: white;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        flex-shrink: 0;
+    }
+
+    .bubble-container {
+        max-width: 70%;
+        position: relative;
+    }
+
+    .bubble {
+        padding: 10px 16px;
+        font-size: 14px;
+        line-height: 1.5;
+        backdrop-filter: blur(10px);
+        transition: all 0.2s ease;
+        position: relative;
+    }
+
+    .sent .bubble {
+        background: linear-gradient(135deg, #7B5EA7 0%, #5E448C 100%);
+        color: #fff;
+        border-radius: 18px 18px 4px 18px;
+        box-shadow: 0 4px 15px rgba(123,94,167,0.2);
+    }
+    
+    .sent.grouped .bubble {
+        border-radius: 18px 4px 4px 18px;
+    }
+
+    .received .bubble {
+        background: rgba(255, 255, 255, 0.05);
+        color: #E8E8FF;
+        border: 1px solid rgba(123, 94, 167, 0.2);
+        border-radius: 18px 18px 18px 4px;
+    }
+
+    .received.grouped .bubble {
+        border-radius: 4px 18px 18px 4px;
+        margin-left: 44px; /* Position without avatar */
+    }
+
+    .message-info {
+        font-size: 10px;
+        margin-top: 4px;
+        opacity: 0.5;
+        font-weight: 300;
+    }
+
+    /* Reactions overlay */
+    .reactions {
+        position: absolute;
+        top: -15px;
+        right: 10px;
+        background: rgba(14, 14, 44, 0.9);
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(123, 94, 167, 0.4);
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 12px;
+        display: none;
+        cursor: pointer;
+        z-index: 10;
+        white-space: nowrap;
+    }
+
+    .bubble:hover .reactions {
+        display: block;
+        animation: popUp 0.3s ease-out;
+    }
+
+    @keyframes popUp {
+        from { opacity: 0; transform: translateY(5px) scale(0.8); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
     /* Glass Panels */
     .glass-card {
         background: rgba(255, 255, 255, 0.03);
@@ -62,87 +224,7 @@ def inject_antigravity_styles():
         margin-bottom: 20px;
     }
 
-    /* Chat Container */
-    .chat-container {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-        padding: 20px;
-        max-height: 65vh;
-        overflow-y: auto;
-        scrollbar-width: thin;
-        scrollbar-color: #7B5EA7 transparent;
-    }
-
-    .chat-container::-webkit-scrollbar {
-        width: 6px;
-    }
-    .chat-container::-webkit-scrollbar-thumb {
-        background: rgba(123, 94, 167, 0.5);
-        border-radius: 10px;
-    }
-
-    /* Chat Bubbles */
-    .message-row {
-        display: flex;
-        width: 100%;
-        animation: bubbleIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
-    }
-
-    @keyframes bubbleIn {
-        from { opacity: 0; transform: translateY(20px) scale(0.95); }
-        to { opacity: 1; transform: translateY(0) scale(1); }
-    }
-
-    .bubble {
-        max-width: 75%;
-        padding: 12px 20px;
-        font-size: 15px;
-        line-height: 1.5;
-        position: relative;
-        backdrop-filter: blur(10px);
-        transition: all 0.3s ease;
-        cursor: default;
-    }
-    
-    .bubble:hover {
-        transform: translateY(-2px);
-    }
-
-    .sent .bubble {
-        background: linear-gradient(135deg, #7B5EA7 0%, #5E448C 100%);
-        color: white;
-        border-radius: 20px 20px 4px 20px;
-        box-shadow: 0 4px 15px rgba(123, 94, 167, 0.3), inset 0 0 10px rgba(255,255,255,0.1);
-    }
-
-    .received .bubble {
-        background: rgba(255, 255, 255, 0.05);
-        color: #E8E8FF;
-        border: 1px solid rgba(123, 94, 167, 0.2);
-        border-radius: 20px 20px 20px 4px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    }
-
-    .received .bubble:hover {
-        border-color: rgba(123, 94, 167, 0.5);
-        box-shadow: 0 0 15px rgba(123, 94, 167, 0.2);
-    }
-
-    .message-info {
-        font-size: 11px;
-        margin-top: 6px;
-        opacity: 0.5;
-        font-weight: 300;
-        display: none;
-    }
-    
-    .bubble:hover .message-info {
-        display: block;
-        animation: fadeIn 0.4s forwards;
-    }
-
-    /* Sidebar & Inputs */
+    /* Inputs & UI */
     [data-testid="stSidebar"] {
         background: rgba(10, 10, 18, 0.9) !important;
         backdrop-filter: blur(20px);
@@ -151,40 +233,20 @@ def inject_antigravity_styles():
 
     .stButton>button {
         border-radius: 12px !important;
-        padding: 10px 24px !important;
         background: rgba(123, 94, 167, 0.1) !important;
         border: 1px solid rgba(123, 94, 167, 0.5) !important;
-        color: white !important;
-        font-weight: 600 !important;
         transition: all 0.3s !important;
     }
 
     .stButton>button:hover {
         background: rgba(123, 94, 167, 0.8) !important;
         box-shadow: 0 0 20px rgba(123, 94, 167, 0.4) !important;
-        transform: translateY(-1px);
     }
-
+    
     .stChatInputContainer {
         border: 1px solid rgba(123, 94, 167, 0.3) !important;
         background: rgba(255, 255, 255, 0.05) !important;
         border-radius: 16px !important;
-        backdrop-filter: blur(10px);
     }
     </style>
     """, unsafe_allow_html=True)
-
-def message_bubble(content, sender, is_sent, timestamp):
-    alignment = "sent" if is_sent else "received"
-    time_str = time.strftime("%H:%M", time.localtime(timestamp))
-    
-    st.markdown(f"""
-    <div class="message-row {alignment}">
-        <div class="bubble">
-            <div>{content}</div>
-            <div class="message-info">{sender} • {time_str}</div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-
-import time

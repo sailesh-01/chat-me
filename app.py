@@ -100,11 +100,37 @@ else:
                 st.markdown('<div class="chat-container">', unsafe_allow_html=True)
                 messages = db.get_messages(st.session_state.user['username'], selected_username)
                 
+                last_sender = None
+                last_date = None
+                
                 for msg in messages:
                     sender_username, receiver_username, content, timestamp = msg
                     is_sent = sender_username == st.session_state.user['username']
+                    
+                    # Date separation logic
+                    msg_date = time.strftime("%Y-%m-%d", time.localtime(timestamp))
+                    if msg_date != last_date:
+                        date_display = time.strftime("%B %d, %Y", time.localtime(timestamp))
+                        utils.date_divider(f"Earth Date: {date_display}")
+                        last_date = msg_date
+                        last_sender = None # Reset grouping on date change
+                    
+                    # Grouping logic
+                    is_grouped = (sender_username == last_sender)
+                    
                     sender_display = st.session_state.user['display_name'] if is_sent else selected_name
-                    utils.message_bubble(content, sender_display, is_sent, timestamp)
+                    avatar_color = st.session_state.user['avatar_color'] if is_sent else selected_user[2]
+                    
+                    utils.message_bubble(
+                        content, 
+                        sender_display, 
+                        is_sent, 
+                        timestamp, 
+                        avatar_color=avatar_color,
+                        is_grouped=is_grouped
+                    )
+                    
+                    last_sender = sender_username
                 
                 st.markdown('</div>', unsafe_allow_html=True)
                 
