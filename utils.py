@@ -3,10 +3,8 @@ import time
 
 def date_divider(date_str):
     st.markdown(f"""
-    <div style="display: flex; align-items: center; margin: 24px 0; opacity: 0.4;">
-        <div style="flex-grow: 1; height: 1px; background: rgba(123, 94, 167, 0.3);"></div>
-        <div style="padding: 0 15px; font-size: 11px; letter-spacing: 2px; text-transform: uppercase;">{date_str}</div>
-        <div style="flex-grow: 1; height: 1px; background: rgba(123, 94, 167, 0.3);"></div>
+    <div class="sticky-date">
+        <div class="date-label">{date_str}</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -15,20 +13,21 @@ def message_bubble(content, sender, is_sent, timestamp, avatar_color="#7B5EA7", 
     time_str = time.strftime("%H:%M", time.localtime(timestamp))
     initials = "".join([n[0] for n in sender.split()[:2]]).upper()
     
-    # Hide avatar and name if grouped
     avatar_html = ""
     if not is_grouped:
         avatar_html = f'<div class="avatar" style="background: {avatar_color};">{initials}</div>'
     
-    # Message layout changes based on sender
-    msg_layout = ""
+    # Message layout logic (WhatsApp-inspired tails and inline time)
     if is_sent:
-        msg_layout = f"""
+        msg_html = f"""
         <div class="message-row sent {'grouped' if is_grouped else ''}">
-            <div class="bubble-container">
+            <div class="bubble-tail-sent">
                 <div class="bubble">
-                    {content}
-                    <div class="message-info">{time_str}</div>
+                    <div class="bubble-content">{content}</div>
+                    <div class="bubble-meta">
+                        <span class="time">{time_str}</span>
+                        <span class="status">🛸</span>
+                    </div>
                     <div class="reactions">🛸 ✨ 👍</div>
                 </div>
             </div>
@@ -36,20 +35,23 @@ def message_bubble(content, sender, is_sent, timestamp, avatar_color="#7B5EA7", 
         </div>
         """
     else:
-        msg_layout = f"""
+        msg_html = f"""
         <div class="message-row received {'grouped' if is_grouped else ''}">
             {avatar_html}
-            <div class="bubble-container">
+            <div class="bubble-tail-received">
                 <div class="bubble">
-                    {content}
-                    <div class="message-info">{sender} • {time_str}</div>
+                    {!is_grouped and f'<div class="sender-name" style="color:{avatar_color}">{sender}</div>' or ''}
+                    <div class="bubble-content">{content}</div>
+                    <div class="bubble-meta">
+                        <span class="time">{time_str}</span>
+                    </div>
                     <div class="reactions">🔭 ❤️ 🌌</div>
                 </div>
             </div>
         </div>
         """
     
-    st.markdown(msg_layout, unsafe_allow_html=True)
+    st.markdown(msg_html, unsafe_allow_html=True)
 
 def inject_antigravity_styles():
     st.markdown("""
@@ -60,193 +62,159 @@ def inject_antigravity_styles():
         font-family: 'Outfit', sans-serif !important;
     }
 
-    /* Antigravity Parallax Star-field */
+    /* Antigravity Parallax Space Layout */
     .stApp {
         background: radial-gradient(circle at center, #1B1B3A 0%, #0A0A12 100%) !important;
     }
     
-    .stApp::before, .stApp::after {
-        content: "";
-        position: fixed;
-        top: 0; left: 0; width: 200%; height: 200%;
-        background-image: 
-            radial-gradient(1.5px 1.5px at 10% 10%, #fff, rgba(0,0,0,0)),
-            radial-gradient(1px 1px at 20% 40%, #ddd, rgba(0,0,0,0)),
-            radial-gradient(2px 2px at 30% 70%, #fff, rgba(0,0,0,0)),
-            radial-gradient(1.5px 1.5px at 50% 20%, #ddd, rgba(0,0,0,0)),
-            radial-gradient(2.5px 2.5px at 70% 50%, #fff, rgba(0,0,0,0)),
-            radial-gradient(1.5px 1.5px at 90% 80%, #ddd, rgba(0,0,0,0));
-        background-repeat: repeat;
-        background-size: 400px 400px;
-        z-index: -1;
-    }
-
-    .stApp::before {
-        opacity: 0.2;
-        animation: starsDriftSlow 120s linear infinite;
-    }
-
-    .stApp::after {
-        opacity: 0.1;
-        background-size: 600px 600px;
-        animation: starsDriftFast 80s linear infinite;
-    }
-
-    @keyframes starsDriftSlow {
-        from { transform: translate(0, 0); }
-        to { transform: translate(-200px, -200px); }
-    }
-
-    @keyframes starsDriftFast {
-        from { transform: translate(0, 0); }
-        to { transform: translate(-300px, -300px); }
-    }
-
-    /* Message Interface */
+    /* Dedicated Chat Wallpaper (WhatsApp style) */
     .chat-container {
         display: flex;
         flex-direction: column;
-        gap: 4px; /* Default gap for grouping */
+        gap: 2px;
         padding: 20px;
-        max-height: 65vh;
+        max-height: 70vh;
         overflow-y: auto;
+        background-image: 
+            radial-gradient(circle at 20% 30%, rgba(123, 94, 167, 0.05) 0%, transparent 40%),
+            radial-gradient(circle at 80% 70%, rgba(123, 94, 167, 0.08) 0%, transparent 50%);
+        background-attachment: local;
+        border-radius: 20px;
+        position: relative;
     }
 
+    /* Sticky Date Headers */
+    .sticky-date {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        display: flex;
+        justify-content: center;
+        margin: 10px 0;
+    }
+    .date-label {
+        background: rgba(14, 14, 44, 0.85);
+        backdrop-filter: blur(10px);
+        padding: 4px 14px;
+        border-radius: 12px;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: rgba(255, 255, 255, 0.6);
+        border: 1px solid rgba(123, 94, 167, 0.2);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+
+    /* Message Rows */
     .message-row {
         display: flex;
         align-items: flex-end;
-        gap: 12px;
+        gap: 8px;
         margin-bottom: 2px;
-        animation: bubbleIn 0.4s ease-out both;
+        animation: slideUp 0.3s ease-out;
+    }
+    .message-row.sent { justify-content: flex-end; }
+    .message-row.grouped { margin-top: -6px; }
+
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 
-    .message-row.sent {
-        justify-content: flex-end;
-    }
-
-    .message-row.grouped {
-        margin-top: -8px;
-    }
-
+    /* Avatars */
     .avatar {
-        width: 32px;
-        height: 32px;
+        width: 30px; height: 30px;
         border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 11px;
-        font-weight: 600;
-        color: white;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 10px; font-weight: 600; color: white;
         box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         flex-shrink: 0;
     }
 
-    .bubble-container {
-        max-width: 70%;
+    /* Bubble with Tail Implementation */
+    .bubble {
+        padding: 8px 12px 6px 14px;
+        font-size: 14.5px;
+        line-height: 1.5;
         position: relative;
+        backdrop-filter: blur(12px);
+        min-width: 60px;
+        max-width: 450px;
     }
 
-    .bubble {
-        padding: 10px 16px;
-        font-size: 14px;
-        line-height: 1.5;
-        backdrop-filter: blur(10px);
-        transition: all 0.2s ease;
-        position: relative;
+    .bubble-tail-sent, .bubble-tail-received { position: relative; }
+
+    /* The Tail */
+    .message-row:not(.grouped) .bubble-tail-sent::after {
+        content: ""; position: absolute;
+        top: 0; right: -8px; width: 0; height: 0;
+        border-left: 10px solid #7B5EA7;
+        border-bottom: 10px solid transparent;
+    }
+    .message-row:not(.grouped) .bubble-tail-received::after {
+        content: ""; position: absolute;
+        top: 0; left: -8px; width: 0; height: 0;
+        border-right: 10px solid rgba(255, 255, 255, 0.08);
+        border-bottom: 10px solid transparent;
     }
 
     .sent .bubble {
-        background: linear-gradient(135deg, #7B5EA7 0%, #5E448C 100%);
-        color: #fff;
-        border-radius: 18px 18px 4px 18px;
+        background: #7B5EA7;
+        color: white;
+        border-radius: 12px 0 12px 12px;
         box-shadow: 0 4px 15px rgba(123,94,167,0.2);
     }
-    
-    .sent.grouped .bubble {
-        border-radius: 18px 4px 4px 18px;
-    }
+    .sent.grouped .bubble { border-radius: 12px; }
 
     .received .bubble {
-        background: rgba(255, 255, 255, 0.05);
+        background: rgba(255, 255, 255, 0.08);
         color: #E8E8FF;
-        border: 1px solid rgba(123, 94, 167, 0.2);
-        border-radius: 18px 18px 18px 4px;
+        border-radius: 0 12px 12px 12px;
+        border: 1px solid rgba(123, 94, 167, 0.1);
+    }
+    .received.grouped .bubble { border-radius: 12px; margin-left: 38px; }
+
+    .sender-name {
+        font-size: 11px; font-weight: 600;
+        margin-bottom: 2px; opacity: 0.9;
     }
 
-    .received.grouped .bubble {
-        border-radius: 4px 18px 18px 4px;
-        margin-left: 44px; /* Position without avatar */
-    }
-
-    .message-info {
+    /* Inline Metadata (Time + Status) */
+    .bubble-meta {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 4px;
+        margin-top: 2px;
         font-size: 10px;
-        margin-top: 4px;
         opacity: 0.5;
-        font-weight: 300;
     }
+    .sent .time { color: rgba(255,255,255,0.7); }
 
-    /* Reactions overlay */
+    /* Hover Reactions */
     .reactions {
         position: absolute;
-        top: -15px;
-        right: 10px;
-        background: rgba(14, 14, 44, 0.9);
-        backdrop-filter: blur(5px);
-        border: 1px solid rgba(123, 94, 167, 0.4);
-        padding: 2px 8px;
-        border-radius: 12px;
-        font-size: 12px;
-        display: none;
-        cursor: pointer;
-        z-index: 10;
-        white-space: nowrap;
+        top: -20px; right: 10px;
+        background: rgba(14,14,44,0.9);
+        border: 1px solid rgba(123,94,167,0.4);
+        padding: 2px 8px; border-radius: 20px;
+        display: none; z-index: 1000;
     }
+    .bubble:hover .reactions { display: flex; gap: 5px; animation: pop 0.2s; }
+    @keyframes pop { from { scale: 0.8; opacity: 0; } to { scale: 1; opacity: 1; } }
 
-    .bubble:hover .reactions {
-        display: block;
-        animation: popUp 0.3s ease-out;
-    }
-
-    @keyframes popUp {
-        from { opacity: 0; transform: translateY(5px) scale(0.8); }
-        to { opacity: 1; transform: translateY(0) scale(1); }
-    }
-
-    /* Glass Panels */
-    .glass-card {
-        background: rgba(255, 255, 255, 0.03);
-        backdrop-filter: blur(15px);
-        border: 1px solid rgba(123, 94, 167, 0.2);
-        border-radius: 24px;
-        padding: 40px;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
-        margin-bottom: 20px;
-    }
-
-    /* Inputs & UI */
-    [data-testid="stSidebar"] {
-        background: rgba(10, 10, 18, 0.9) !important;
-        backdrop-filter: blur(20px);
-        border-right: 1px solid rgba(123, 94, 167, 0.15) !important;
-    }
-
-    .stButton>button {
-        border-radius: 12px !important;
-        background: rgba(123, 94, 167, 0.1) !important;
-        border: 1px solid rgba(123, 94, 167, 0.5) !important;
-        transition: all 0.3s !important;
-    }
-
-    .stButton>button:hover {
-        background: rgba(123, 94, 167, 0.8) !important;
-        box-shadow: 0 0 20px rgba(123, 94, 167, 0.4) !important;
-    }
-    
+    /* Inputs & Buttons */
     .stChatInputContainer {
-        border: 1px solid rgba(123, 94, 167, 0.3) !important;
-        background: rgba(255, 255, 255, 0.05) !important;
-        border-radius: 16px !important;
+        border-radius: 25px !important;
+        background: rgba(255,255,255,0.05) !important;
+        border: 1px solid rgba(123,94,167,0.3) !important;
     }
+    .stButton>button {
+        border-radius: 20px !important;
+        background: rgba(123,94,167,0.15) !important;
+        transition: 0.3s;
+    }
+    .stButton>button:hover { background: #7B5EA7 !important; color: white !important; }
+
     </style>
     """, unsafe_allow_html=True)
