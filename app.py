@@ -8,7 +8,7 @@ import time
 # Initialize database
 db.init_db()
 
-st.set_page_config(page_title="AstroChat", layout="wide", page_icon="🛸")
+st.set_page_config(page_title="Jaguars", layout="wide", page_icon="🐆")
 utils.inject_antigravity_styles()
 
 # Authentication check
@@ -19,19 +19,19 @@ if "user" not in st.session_state:
     with col2:
         st.markdown("""
         <div class="glass-card">
-            <h1 style='text-align: center; margin-bottom: 0;'>🛸 AstroChat</h1>
-            <p style='text-align: center; opacity: 0.6; margin-bottom: 30px;'>Antigravity Messaging</p>
+            <h1 style='text-align: center; margin-bottom: 0; color: #FFB800;'>🐆 Jaguars</h1>
+            <p style='text-align: center; opacity: 0.6; margin-bottom: 30px;'>Elite Multi-User Messaging</p>
         </div>
         """, unsafe_allow_html=True)
         
         with st.container():
             mode = st.radio("Mode", ["Login", "Signup"], label_visibility="collapsed", horizontal=True)
             
-            username = st.text_input("Username", placeholder="Explorer ID")
+            username = st.text_input("Username", placeholder="JAG ID")
             password = st.text_input("Password", type="password", placeholder="Access Key")
             
             if mode == "Signup":
-                display_name = st.text_input("Display Name", placeholder="Radio Name")
+                display_name = st.text_input("Display Name", placeholder="Callsign")
                 if st.button("Initialize Account", use_container_width=True):
                     success, msg = auth.signup_user(username, password, display_name)
                     if success:
@@ -49,14 +49,14 @@ if "user" not in st.session_state:
 else:
     # Sidebar Navigation
     with st.sidebar:
-        st.markdown(f"### Welcome, {st.session_state.user['display_name']}!")
+        st.markdown(f"### Welcome, {st.session_state.user['display_name']}! 🐆")
         page = st.selectbox("Navigation", ["Chat", "Settings"])
         
         if st.button("Logout", use_container_width=True):
             auth.logout_user()
 
     if page == "Settings":
-        st.title("🛸 AstroSettings")
+        st.title("🐆 Jaguar Settings")
         new_name = st.text_input("Display Name", value=st.session_state.user['display_name'])
         new_color = st.color_picker("Avatar Color", value=st.session_state.user['avatar_color'])
         
@@ -76,7 +76,7 @@ else:
         users = db.get_all_users(exclude_user=st.session_state.user['username'])
         
         if not users:
-            st.info("No other explorers found in this sector yet.")
+            st.info("No other hunters found in this sector yet.")
         else:
             col_list, col_chat = st.columns([1, 3])
             
@@ -91,10 +91,10 @@ else:
                 selected_username = selected_user[0]
                 
                 st.markdown("---")
-                st.markdown(f"**Coordinates:** {selected_username}@Astro")
+                st.markdown(f"**Coordinates:** {selected_username}@Jag")
 
             with col_chat:
-                st.markdown(f"### 🛰️ {selected_name}")
+                st.markdown(f"### 🐆 {selected_name}")
                 
                 # Container for messages with custom scroll CSS
                 st.markdown('<div class="chat-container">', unsafe_allow_html=True)
