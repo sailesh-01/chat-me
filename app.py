@@ -21,18 +21,15 @@ if "user" not in st.session_state:
     
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        st.markdown(f'<div class="glow-aura {"shake-error" if st.session_state.auth_error else ""}">', unsafe_allow_html=True)
-        
-        # Start the Unified Glass Box
-        st.markdown('<div class="glass-card">', unsafe_allow_html=True)
-        
-        # Dynamic Header inside the box
+        # Dynamic Header
         header_title = "🐆 JAGUARS" if st.session_state.auth_mode == "Login" else "🐆 JOIN THE PRIDE"
         header_subtitle = "ELITE COMM-LINK" if st.session_state.auth_mode == "Login" else "BECOME A HUNTER"
         
         st.markdown(f"""
+        <div class="glass-card">
             <h1 style='text-align: center; margin-bottom: 0; color: #FFB800;'>{header_title}</h1>
             <p style='text-align: center; opacity: 0.6; margin-bottom: 30px; letter-spacing: 2px; font-size: 10px;'>{header_subtitle}</p>
+        </div>
         """, unsafe_allow_html=True)
         
         mode = st.radio("Mode", ["Login", "Signup"], label_visibility="collapsed", horizontal=True, key="auth_toggle")
@@ -65,10 +62,6 @@ if "user" not in st.session_state:
                         st.session_state.auth_error = True
                         st.error("Protocol Error: Invalid JAG ID or Access Key")
                         st.rerun()
-        
-        # End the Unified Glass Box
-        st.markdown('</div>', unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
 else:
     # Sidebar Navigation
     with st.sidebar:
