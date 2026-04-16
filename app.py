@@ -51,7 +51,6 @@ if "user" not in st.session_state:
                     else:
                         st.error(msg)
                         st.session_state.auth_error = True
-                        st.rerun()
         else:
             if st.button("Establish Connection", use_container_width=True):
                 with st.spinner("Establishing Secure Comm-Link..."):
@@ -61,7 +60,6 @@ if "user" not in st.session_state:
                     else:
                         st.session_state.auth_error = True
                         st.error("Protocol Error: Invalid JAG ID or Access Key")
-                        st.rerun()
 else:
     # Sidebar Navigation
     with st.sidebar:
