@@ -1,5 +1,6 @@
 import streamlit as st
 import time
+import base64
 
 def date_divider(date_str):
     st.markdown(f"""
@@ -8,7 +9,7 @@ def date_divider(date_str):
     </div>
     """, unsafe_allow_html=True)
 
-def message_bubble(content, sender, is_sent, timestamp, avatar_color="#FFB800", is_grouped=False):
+def message_bubble(content, sender, is_sent, timestamp, avatar_color="#FFB800", is_grouped=False, msg_type='text'):
     alignment = "sent" if is_sent else "received"
     time_str = time.strftime("%H:%M", time.localtime(timestamp))
     initials = "".join([n[0] for n in sender.split()[:2]]).upper()
@@ -17,12 +18,17 @@ def message_bubble(content, sender, is_sent, timestamp, avatar_color="#FFB800", 
     if not is_grouped:
         avatar_html = f'<div class="avatar" style="background: {avatar_color}; color: #000;">{initials}</div>'
     
+    # Content Rendering (Text vs Intel/Image)
+    display_content = content
+    if msg_type == 'image':
+        display_content = f'<div class="intel-frame"><p style="font-size: 10px; color: #FFB800; margin: 0 0 5px 0;">📡 ENCRYPTED INTEL</p><img src="{content}" class="intel-img" /></div>'
+    
     if is_sent:
         msg_html = f"""
         <div class="message-row sent {'grouped' if is_grouped else ''}">
             <div class="bubble-container">
                 <div class="bubble">
-                    <div class="bubble-content">{content}</div>
+                    <div class="bubble-content">{display_content}</div>
                     <div class="bubble-meta">
                         <span class="time">{time_str}</span>
                         <span class="status">🐆</span>
@@ -41,7 +47,7 @@ def message_bubble(content, sender, is_sent, timestamp, avatar_color="#FFB800", 
                 <svg class="tail-received" width="10" height="10" viewBox="0 0 10 10"><path d="M10 0 L0 0 L0 10 C5 5 10 0 10 0" fill="rgba(255,255,255,0.06)"/></svg>
                 <div class="bubble">
                     {f'<div class="sender-name" style="color:{avatar_color}">{sender}</div>' if not is_grouped else ''}
-                    <div class="bubble-content">{content}</div>
+                    <div class="bubble-content">{display_content}</div>
                     <div class="bubble-meta">
                         <span class="time">{time_str}</span>
                     </div>
@@ -74,24 +80,37 @@ def inject_antigravity_styles():
     /* Tactical Background */
     .stApp {
         background: radial-gradient(circle at 50% 50%, #111 0%, #050505 100%) !important;
+        position: relative;
     }
     
-    /* Ultimate Background Orbs */
+    /* Digital Rain / Cyber-Dust */
     .stApp::before {
-        content: ""; position: fixed; top: -10%; left: -10%; width: 50%; height: 50%;
-        background: radial-gradient(circle, rgba(255,184,0,0.04) 0%, transparent 60%);
-        animation: rotateOrb 30s infinite linear; z-index: -1;
+        content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background-image: 
+            radial-gradient(1px 1px at 20px 30px, rgba(255,184,0,0.2), transparent),
+            radial-gradient(1px 1px at 40px 70px, rgba(255,184,0,0.1), transparent),
+            radial-gradient(1px 1px at 50px 160px, rgba(255,184,0,0.15), transparent),
+            radial-gradient(1px 1px at 80px 10px, rgba(255,184,0,0.2), transparent);
+        background-size: 200px 200px;
+        animation: cyberDust 20s linear infinite;
+        z-index: -1; pointer-events: none;
     }
-    @keyframes rotateOrb { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @keyframes cyberDust { from { background-position: 0 0; } to { background-position: 0 400px; } }
 
-    /* Login Area */
-    .login-container {
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background-image: linear-gradient(rgba(5, 5, 5, 0.8), rgba(5, 5, 5, 0.9)), url("app/static/login_mascot.png"), url("static/login_mascot.png");
-        background-size: cover; background-position: center; z-index: -1;
+    /* Sector Scan Glitch Transition */
+    .sector-scan-active {
+        animation: scanGlitch 0.4s cubic-bezier(.25,.46,.45,.94) both;
+    }
+    @keyframes scanGlitch {
+        0% { transform: translate(0); filter: contrast(1); }
+        20% { transform: translate(-2px, 1px); filter: contrast(1.5); color: #FFB800; }
+        40% { transform: translate(2px, -1px); opacity: 0.8; }
+        60% { transform: translate(-1px, -2px); filter: hue-rotate(90deg); }
+        80% { transform: translate(1px, 2px); }
+        100% { transform: translate(0); filter: contrast(1); }
     }
 
-    /* Sidebar Refinement */
+    /* Sidebar & Profile */
     [data-testid="stSidebar"] {
         background-color: #080808 !important;
         border-right: 1px solid rgba(255, 184, 0, 0.1) !important;
@@ -114,18 +133,7 @@ def inject_antigravity_styles():
     }
     @keyframes pulseLight { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
 
-    /* Tactical Radar Nav */
-    div[data-testid="stSidebar"] .stRadio > label { display: none; }
-    div[data-testid="stSidebar"] .stRadio div[role="radiogroup"] {
-        background: rgba(255, 255, 255, 0.02);
-        border-radius: 15px;
-        padding: 5px;
-    }
-    div[data-testid="stSidebar"] .stRadio div[data-testid="stMarkdownContainer"] p {
-        font-size: 13px; font-weight: 400; color: #888;
-    }
-
-    /* Chat Elements 2.0 */
+    /* Bubbles 2.0 with Intel */
     .message-row {
         display: flex; align-items: flex-end; gap: 10px; margin-bottom: 4px;
         animation: springIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
@@ -133,7 +141,6 @@ def inject_antigravity_styles():
     @keyframes springIn { from { opacity: 0; transform: translateY(15px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
 
     .bubble-container { position: relative; display: flex; align-items: flex-end; }
-    
     .bubble {
         padding: 10px 15px; border-radius: 12px;
         backdrop-filter: blur(15px);
@@ -143,8 +150,12 @@ def inject_antigravity_styles():
     .sent .bubble { background: #FFB800; color: #000; border-bottom-right-radius: 2px; }
     .received .bubble { background: rgba(255,255,255,0.06); color: #fff; border-bottom-left-radius: 2px; border: 1px solid rgba(255,255,255,0.05); }
 
-    .tail-sent { margin-left: -2px; margin-bottom: 2px; }
-    .tail-received { margin-right: -2px; margin-bottom: 2px; }
+    .intel-frame { border: 1px solid rgba(255,184,0,0.3); border-radius: 8px; padding: 5px; background: rgba(0,0,0,0.3); }
+    .intel-img { max-width: 100%; border-radius: 4px; filter: contrast(1.1) brightness(0.9); transition: 0.3s; }
+    .intel-img:hover { filter: contrast(1.2) brightness(1.1); scale: 1.02; cursor: zoom-in; }
+
+    /* Custom File Uploader Label */
+    .stFileUploader label { color: #FFB800 !important; font-size: 10px !important; letter-spacing: 1px !important; }
 
     /* Neon-Pulse Inputs */
     .stTextInput input:focus {
@@ -153,7 +164,7 @@ def inject_antigravity_styles():
         background: rgba(255,184,0,0.05) !important;
     }
 
-    /* Status Hub Refined */
+    /* AI Core Status Hub */
     .status-hub {
         position: fixed; top: 20px; right: 20px; font-size: 9px;
         font-weight: 800; color: #FFB800; letter-spacing: 2px;
@@ -166,12 +177,5 @@ def inject_antigravity_styles():
         font-size: 8px; color: rgba(255,255,255,0.1);
         text-transform: uppercase; letter-spacing: 3px;
     }
-    
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar { width: 4px; }
-    ::-webkit-scrollbar-thumb { background: rgba(255,184,0,0.2); border-radius: 10px; }
-
     </style>
-    <div class="status-hub">JAG-LINK: ENCRYPTED</div>
-    <div class="watermark">Jaguar Elite Core</div>
     """, unsafe_allow_html=True)

@@ -80,6 +80,19 @@ else:
         </div>
         """, unsafe_allow_html=True)
         
+        # AI Core Status Hub (Rotating)
+        import random
+        statuses = [
+            "SATELLITE LINK: 98% STABLE",
+            "ATMOSPHERIC INTERFERENCE: MINIMAL",
+            "JAG-CORE PULSE: OPTIMAL",
+            "ENCRYPTION KEY: ROTATING...",
+            "SECTOR SCAN: ACTIVE",
+            "BIO-LINK: ESTABLISHED"
+        ]
+        active_status = statuses[int(time.time() / 10) % len(statuses)]
+        st.markdown(f'<div class="status-hub">{active_status}</div>', unsafe_allow_html=True)
+        
         st.markdown("### 🗺️ CONTROL")
         page = st.radio("Navigation", ["Chat", "Settings"], label_visibility="collapsed")
         
@@ -118,9 +131,21 @@ else:
                 selected_user = next(u for u in users if u[1] == selected_name)
                 selected_username = selected_user[0]
                 
+                # Check for "Hunting..." (Typing) Status
+                is_typing = db.get_typing_status(selected_username, st.session_state.user['username'])
+                
+                # Detect Sector Change for Glitch Effect
+                if "last_sector" not in st.session_state:
+                    st.session_state.last_sector = selected_username
+                
+                glitch_class = ""
+                if st.session_state.last_sector != selected_username:
+                    glitch_class = "sector-scan-active"
+                    st.session_state.last_sector = selected_username
+
                 st.markdown(f"""
-                <div style="margin-top: 20px; padding: 10px; border-radius: 10px; background: rgba(255,184,0,0.05); border-left: 3px solid #FFB800;">
-                    <p style="font-size: 10px; margin: 0; color: #FFB800; font-weight: 800;">TARGET SECTOR</p>
+                <div class="{glitch_class}" style="margin-top: 20px; padding: 10px; border-radius: 10px; background: rgba(255,184,0,0.05); border-left: 3px solid #FFB800;">
+                    <p style="font-size: 10px; margin: 0; color: #FFB800; font-weight: 800;">TARGET SECTOR {' - 🐆 HUNTING...' if is_typing else ''}</p>
                     <p style="font-size: 12px; margin: 0; opacity: 0.8;">{selected_username}@Jaguars</p>
                 </div>
                 """, unsafe_allow_html=True)
@@ -136,38 +161,51 @@ else:
                 last_date = None
                 
                 for msg in messages:
-                    sender_username, receiver_username, content, timestamp = msg
-                    is_sent = sender_username == st.session_state.user['username']
-                    
                     # Date separation logic
-                    msg_date = time.strftime("%Y-%m-%d", time.localtime(timestamp))
+                    msg_date = time.strftime("%Y-%m-%d", time.localtime(msg['timestamp']))
                     if msg_date != last_date:
-                        date_display = time.strftime("%B %d, %Y", time.localtime(timestamp))
-                        utils.date_divider(f"Earth Date: {date_display}")
+                        date_display = time.strftime("%B %d, %Y", time.localtime(msg['timestamp']))
+                        utils.date_divider(f"EARTH DATE: {date_display}")
                         last_date = msg_date
-                        last_sender = None # Reset grouping on date change
+                        last_sender = None
                     
-                    # Grouping logic
-                    is_grouped = (sender_username == last_sender)
+                    is_sent = msg['sender'] == st.session_state.user['username']
+                    is_grouped = (msg['sender'] == last_sender)
                     
                     sender_display = st.session_state.user['display_name'] if is_sent else selected_name
                     avatar_color = st.session_state.user['avatar_color'] if is_sent else selected_user[2]
                     
                     utils.message_bubble(
-                        content, 
+                        msg['content'], 
                         sender_display, 
                         is_sent, 
-                        timestamp, 
+                        msg['timestamp'], 
                         avatar_color=avatar_color,
-                        is_grouped=is_grouped
+                        is_grouped=is_grouped,
+                        msg_type=msg['type']
                     )
-                    
-                    last_sender = sender_username
+                    last_sender = msg['sender']
                 
                 st.markdown('</div>', unsafe_allow_html=True)
                 
                 # Input area
-                user_input = st.chat_input(f"Send a message to {selected_name}...")
-                if user_input:
-                    db.send_message(st.session_state.user['username'], selected_username, user_input)
-                    st.rerun()
+                with st.container():
+                    col_input, col_file = st.columns([5, 1])
+                    with col_input:
+                        user_input = st.chat_input(f"Send intel to {selected_name}...")
+                        import base64
+                        if user_input:
+                            db.send_message(st.session_state.user['username'], selected_username, user_input)
+                            st.rerun()
+                        
+                        # Update Typing Status
+                        if st.session_state.get('typing_active', False) or user_input:
+                            db.update_typing_status(st.session_state.user['username'], selected_username)
+                    
+                    with col_file:
+                        intel_file = st.file_uploader("INTEL", type=['png', 'jpg', 'jpeg'], label_visibility="collapsed")
+                        if intel_file:
+                            byte_data = intel_file.read()
+                            base64_img = f"data:image/png;base64,{base64.b64encode(byte_data).decode()}"
+                            db.send_message(st.session_state.user['username'], selected_username, base64_img, msg_type='image')
+                            st.rerun()
