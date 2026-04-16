@@ -64,52 +64,69 @@ if "user" not in st.session_state:
 else:
     # Sidebar Navigation
     with st.sidebar:
-        st.markdown(f"### Welcome, {st.session_state.user['display_name']}! 🐆")
-        page = st.selectbox("Navigation", ["Chat", "Settings"])
+        # Hunter Profile Card
+        st.markdown(f"""
+        <div class="profile-card">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;">
+                <div style="width: 40px; height: 40px; border-radius: 50%; background: {st.session_state.user['avatar_color']}; display: flex; align-items: center; justify-content: center; color: #000; font-weight: 800; border: 2px solid rgba(255,184,0,0.5);">
+                    {st.session_state.user['display_name'][0].upper()}
+                </div>
+                <div>
+                    <h4>{st.session_state.user['display_name']}</h4>
+                    <p style="font-size: 10px; opacity: 0.6; margin: 0;"><span class="status-light"></span>ONLINE</p>
+                </div>
+            </div>
+            <p style="font-size: 9px; opacity: 0.4; letter-spacing: 1px; margin: 0;">JAG-ID: {st.session_state.user['username']}@Sector-7</p>
+        </div>
+        """, unsafe_allow_html=True)
         
-        if st.button("Logout", use_container_width=True):
+        st.markdown("### 🗺️ CONTROL")
+        page = st.radio("Navigation", ["Chat", "Settings"], label_visibility="collapsed")
+        
+        st.markdown("---")
+        if st.button("TERMINATE CONNECTION", use_container_width=True):
             auth.logout_user()
 
     if page == "Settings":
-        st.title("🐆 Jaguar Settings")
+        st.markdown("<h1 style='color: #FFB800;'>🐆 JAGUAR CONFIG</h1>", unsafe_allow_html=True)
         new_name = st.text_input("Display Name", value=st.session_state.user['display_name'])
         new_color = st.color_picker("Avatar Color", value=st.session_state.user['avatar_color'])
         
-        if st.button("Save Profile"):
+        if st.button("SAVE PROFILE", use_container_width=True):
             db.update_user_profile(st.session_state.user['username'], new_name, new_color)
             st.session_state.user['display_name'] = new_name
             st.session_state.user['avatar_color'] = new_color
-            st.success("Profile updated!")
+            st.success("Profile Updated")
             time.sleep(1)
             st.rerun()
 
     elif page == "Chat":
-        # Auto-refresh every 2 seconds
         st_autorefresh(interval=2000, key="chatupdate")
         
-        # Sidebar contact list
         users = db.get_all_users(exclude_user=st.session_state.user['username'])
         
         if not users:
-            st.info("No other hunters found in this sector yet.")
+            st.info("Searching for other hunters in this sector...")
         else:
             col_list, col_chat = st.columns([1, 3])
             
             with col_list:
-                st.markdown("### 🔭 Sectors")
-                # Simple contact selector with nicer label
+                st.markdown("### 🔭 SECTORS")
                 contact_names = [u[1] for u in users]
-                selected_name = st.radio("Select Sector", contact_names, label_visibility="collapsed")
+                selected_name = st.radio("Sectors", contact_names, label_visibility="collapsed")
                 
-                # Get selected user object
                 selected_user = next(u for u in users if u[1] == selected_name)
                 selected_username = selected_user[0]
                 
-                st.markdown("---")
-                st.markdown(f"**Coordinates:** {selected_username}@Jag")
+                st.markdown(f"""
+                <div style="margin-top: 20px; padding: 10px; border-radius: 10px; background: rgba(255,184,0,0.05); border-left: 3px solid #FFB800;">
+                    <p style="font-size: 10px; margin: 0; color: #FFB800; font-weight: 800;">TARGET SECTOR</p>
+                    <p style="font-size: 12px; margin: 0; opacity: 0.8;">{selected_username}@Jaguars</p>
+                </div>
+                """, unsafe_allow_html=True)
 
             with col_chat:
-                st.markdown(f"### 🐆 {selected_name}")
+                st.markdown(f"<h3 style='margin-bottom: 10px;'>🐆 {selected_name.upper()}</h3>", unsafe_allow_html=True)
                 
                 # Container for messages with custom scroll CSS
                 st.markdown('<div class="chat-container">', unsafe_allow_html=True)
