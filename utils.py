@@ -55,145 +55,149 @@ def message_bubble(content, sender, is_sent, timestamp, avatar_color="#FFB800", 
 def inject_antigravity_styles():
     st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;800&family=Outfit:wght@300;400;600&display=swap');
+
+    /* Absolute Immersion: Hide Streamlit Controls */
+    #MainMenu, footer, header {visibility: hidden; height: 0;}
+    [data-testid="stSidebarNav"] { display: none !important; }
+    button[title="View source"] { display: none !important; }
 
     html, body, [data-testid="stAppViewContainer"] {
         font-family: 'Outfit', sans-serif !important;
+        scroll-behavior: smooth;
     }
 
-    /* Cinematic Layout */
+    h1, h2, h3 {
+        font-family: 'Syne', sans-serif !important;
+        letter-spacing: -1px;
+    }
+
+    /* Jaguars Cinematic Deep Background */
     .stApp {
-        background: radial-gradient(circle at center, #151515 0%, #080808 100%) !important;
+        background: radial-gradient(circle at center, #111111 0%, #050505 100%) !important;
+        overflow: hidden;
+    }
+    
+    /* Floating Light Orbs */
+    .stApp::before, .stApp::after {
+        content: "";
+        position: fixed;
+        width: 600px; height: 600px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(255,184,0,0.03) 0%, transparent 70%);
+        z-index: -1;
+        pointer-events: none;
+    }
+    .stApp::before { top: -100px; left: -100px; animation: drift 20s infinite alternate; }
+    .stApp::after { bottom: -100px; right: -100px; animation: drift 25s infinite alternate-reverse; }
+    
+    @keyframes drift {
+        from { transform: translate(0,0) scale(1); opacity: 0.3; }
+        to { transform: translate(100px, 50px) scale(1.1); opacity: 0.6; }
     }
 
-    /* Full-screen Login Background */
+    /* Full-screen Login Background with Refinement */
     .login-container {
         position: fixed;
         top: 0; left: 0; width: 100%; height: 100%;
-        background-image: linear-gradient(rgba(8, 8, 8, 0.7), rgba(8, 8, 8, 0.7)), url("app/static/login_mascot.png");
+        background-image: linear-gradient(rgba(5, 5, 5, 0.75), rgba(5, 5, 5, 0.85)), url("app/static/login_mascot.png");
         background-size: cover;
         background-position: center;
-        display: flex;
-        align-items: center;
-        justify-content: center;
         z-index: -1;
     }
 
-    /* Aura Container for Login */
-    .glow-aura {
-        position: relative;
-        padding: 4px;
-        border-radius: 28px;
-        background: linear-gradient(135deg, rgba(255,184,0,0.1) 0%, transparent 50%, rgba(255,184,0,0.05) 100%);
-        animation: pulseAura 4s infinite ease-in-out;
+    /* Status Hub Branding */
+    .status-hub {
+        position: fixed;
+        top: 20px; right: 20px;
+        padding: 6px 14px;
+        background: rgba(18, 18, 18, 0.8);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 184, 0, 0.2);
+        border-radius: 30px;
+        font-size: 10px;
+        font-weight: 600;
+        color: #FFB800;
+        letter-spacing: 1px;
+        z-index: 9999;
+        display: flex; align-items: center; gap: 8px;
     }
-    
-    @keyframes pulseAura {
-        0%, 100% { box-shadow: 0 0 30px rgba(255,184,0,0.05); }
-        50% { box-shadow: 0 0 60px rgba(255,184,0,0.15); }
+    .status-dot {
+        width: 6px; height: 6px;
+        background: #FFB800;
+        border-radius: 50%;
+        box-shadow: 0 0 10px #FFB800;
+        animation: pulse 2s infinite;
     }
+    @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
 
-    /* Error Shake Animation */
-    .shake-error {
-        animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
-        border-color: rgba(255, 69, 58, 0.5) !important;
-    }
-
-    @keyframes shake {
-        10%, 90% { transform: translate3d(-1px, 0, 0); }
-        20%, 80% { transform: translate3d(2px, 0, 0); }
-        30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
-        40%, 60% { transform: translate3d(4px, 0, 0); }
-    }
-
-    .glass-card {
-        background: rgba(18, 18, 18, 0.75);
-        backdrop-filter: blur(25px);
-        border: 1px solid rgba(255, 184, 0, 0.15);
-        border-radius: 24px;
-        padding: 40px;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
-        transition: all 0.4s ease;
-    }
-    .glass-card:hover { border-color: rgba(255, 184, 0, 0.4); }
-
-    /* Input Field Icons via CSS hack */
-    .stTextInput input {
-        padding-left: 40px !important;
-        background-repeat: no-repeat !important;
-        background-position: 12px center !important;
-        background-size: 18px !important;
-        transition: all 0.3s !important;
-    }
-    
-    /* Logic to inject icons into specific placeholders */
-    .stTextInput input[placeholder*="ID"] {
-        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%23FFB800" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>') !important;
-    }
-    
-    .stTextInput input[placeholder*="Key"] {
-        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%23FFB800" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>') !important;
-    }
-
-    /* Shimmer Button Effect */
-    .stButton>button {
-        position: relative;
-        overflow: hidden;
-        border-radius: 12px !important;
-        background: rgba(255,184,0,0.1) !important;
-        border: 1px solid #FFB800 !important;
-        color: #FFB800 !important;
-        font-weight: 600 !important;
-        letter-spacing: 1.5px;
-        text-transform: uppercase;
-        transition: 0.3s;
-    }
-    
-    .stButton>button::after {
-        content: "";
-        position: absolute;
-        top: -50%; left: -60%; width: 25%; height: 200%;
-        background: rgba(255,255,255,0.15);
-        transform: rotate(30deg);
-        animation: shimmer 4s infinite;
-    }
-    
-    @keyframes shimmer {
-        0% { left: -60%; }
-        20%, 100% { left: 120%; }
-    }
-
-    .stButton>button:hover {
-        background: #FFB800 !important;
-        color: #000 !important;
-        box-shadow: 0 0 30px rgba(255,184,0,0.5) !important;
-    }
-
-    /* Staggered Entry Animations */
-    .stTextInput, .stRadio {
-        animation: slideUpFade 0.6s ease-out both;
-    }
-    .stTextInput:nth-child(2) { animation-delay: 0.1s; }
-    .stTextInput:nth-child(3) { animation-delay: 0.2s; }
-    
-    @keyframes slideUpFade {
-        from { opacity: 0; transform: translateY(15px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Custom Spinner Styling */
-    .stSpinner > div {
-        border-top-color: #FFB800 !important;
-    }
-
-    /* Chat Container (Refined) */
-    .chat-container {
+    /* Message Bubbles with Physics (Spring Animation) */
+    .message-row {
         display: flex;
-        flex-direction: column;
-        gap: 2px;
-        padding: 20px;
-        max-height: 70vh;
-        overflow-y: auto;
+        align-items: flex-end;
+        gap: 12px;
+        margin-bottom: 2px;
+        animation: springIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
     }
+    
+    @keyframes springIn {
+        from { opacity: 0; transform: translateY(20px) scale(0.95); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .bubble {
+        padding: 12px 18px 10px 18px;
+        border-radius: 12px;
+        position: relative;
+        backdrop-filter: blur(25px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+    
+    /* Refraction Edge (Light hitting glass) */
+    .glass-card, .bubble {
+        border-top: 1px solid rgba(255,255,255,0.08);
+        border-left: 1px solid rgba(255,255,255,0.03);
+    }
+
+    .sent .bubble {
+        background: linear-gradient(135deg, #FFB800 0%, #E6A500 100%);
+        color: #000;
+        border-radius: 18px 0 18px 18px;
+    }
+    
+    .received .bubble {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 184, 0, 0.1);
+        border-radius: 0 18px 18px 18px;
+        color: #fff;
+    }
+
+    /* Modern Custom Scrollbar */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255, 184, 0, 0.2); border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255, 184, 0, 0.5); }
+
+    /* Signature Watermark */
+    .watermark {
+        position: fixed;
+        bottom: 20px; left: 20px;
+        font-size: 9px;
+        color: rgba(255, 255, 255, 0.15);
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        pointer-events: none;
+        z-index: 1000;
+    }
+
+    /* Staggered Entry for Login Card */
+    .glow-aura { animation: slideUpFade 0.8s cubic-bezier(.16,1,.3,1) both; }
+    
     </style>
+    
+    <div class="status-hub">
+        <div class="status-dot"></div>
+        JAG-LINK STATUS: ACTIVE
+    </div>
+    <div class="watermark">Designed by Antigravity x Jaguars Elite</div>
     """, unsafe_allow_html=True)
