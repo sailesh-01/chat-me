@@ -78,30 +78,62 @@ def inject_antigravity_styles():
         justify-content: center;
         z-index: -1;
     }
+
+    /* Aura Container for Login */
     .glow-aura {
         position: relative;
         padding: 4px;
         border-radius: 28px;
-        background: linear-gradient(135deg, rgba(255,184,0,0.2) 0%, transparent 50%, rgba(255,184,0,0.1) 100%);
+        background: linear-gradient(135deg, rgba(255,184,0,0.1) 0%, transparent 50%, rgba(255,184,0,0.05) 100%);
         animation: pulseAura 4s infinite ease-in-out;
-        box-shadow: 0 0 50px rgba(0,0,0,0.5);
     }
     
     @keyframes pulseAura {
-        0%, 100% { box-shadow: 0 0 30px rgba(255,184,0,0.05); transform: scale(1); }
-        50% { box-shadow: 0 0 60px rgba(255,184,0,0.15); transform: scale(1.005); }
+        0%, 100% { box-shadow: 0 0 30px rgba(255,184,0,0.05); }
+        50% { box-shadow: 0 0 60px rgba(255,184,0,0.15); }
+    }
+
+    /* Error Shake Animation */
+    .shake-error {
+        animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        border-color: rgba(255, 69, 58, 0.5) !important;
+    }
+
+    @keyframes shake {
+        10%, 90% { transform: translate3d(-1px, 0, 0); }
+        20%, 80% { transform: translate3d(2px, 0, 0); }
+        30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+        40%, 60% { transform: translate3d(4px, 0, 0); }
     }
 
     .glass-card {
-        background: rgba(18, 18, 18, 0.7);
+        background: rgba(18, 18, 18, 0.75);
         backdrop-filter: blur(25px);
-        border: 1px solid rgba(255, 184, 0, 0.2);
+        border: 1px solid rgba(255, 184, 0, 0.15);
         border-radius: 24px;
         padding: 40px;
         box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
-        transition: border-color 0.5s;
+        transition: all 0.4s ease;
     }
     .glass-card:hover { border-color: rgba(255, 184, 0, 0.4); }
+
+    /* Input Field Icons via CSS hack */
+    .stTextInput input {
+        padding-left: 40px !important;
+        background-repeat: no-repeat !important;
+        background-position: 12px center !important;
+        background-size: 18px !important;
+        transition: all 0.3s !important;
+    }
+    
+    /* Logic to inject icons into specific placeholders */
+    .stTextInput input[placeholder*="ID"] {
+        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%23FFB800" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>') !important;
+    }
+    
+    .stTextInput input[placeholder*="Key"] {
+        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%23FFB800" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>') !important;
+    }
 
     /* Shimmer Button Effect */
     .stButton>button {
@@ -112,7 +144,7 @@ def inject_antigravity_styles():
         border: 1px solid #FFB800 !important;
         color: #FFB800 !important;
         font-weight: 600 !important;
-        letter-spacing: 1px;
+        letter-spacing: 1.5px;
         text-transform: uppercase;
         transition: 0.3s;
     }
@@ -120,8 +152,8 @@ def inject_antigravity_styles():
     .stButton>button::after {
         content: "";
         position: absolute;
-        top: -50%; left: -60%; width: 20%; height: 200%;
-        background: rgba(255,255,255,0.1);
+        top: -50%; left: -60%; width: 25%; height: 200%;
+        background: rgba(255,255,255,0.15);
         transform: rotate(30deg);
         animation: shimmer 4s infinite;
     }
@@ -139,17 +171,22 @@ def inject_antigravity_styles():
 
     /* Staggered Entry Animations */
     .stTextInput, .stRadio {
-        animation: slideUpFade 0.7s ease-out both;
+        animation: slideUpFade 0.6s ease-out both;
     }
-    .stTextInput:nth-child(1) { animation-delay: 0.1s; }
-    .stTextInput:nth-child(2) { animation-delay: 0.2s; }
+    .stTextInput:nth-child(2) { animation-delay: 0.1s; }
+    .stTextInput:nth-child(3) { animation-delay: 0.2s; }
     
     @keyframes slideUpFade {
-        from { opacity: 0; transform: translateY(20px); }
+        from { opacity: 0; transform: translateY(15px); }
         to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Chat Elements (Same as before but refined) */
+    /* Custom Spinner Styling */
+    .stSpinner > div {
+        border-top-color: #FFB800 !important;
+    }
+
+    /* Chat Container (Refined) */
     .chat-container {
         display: flex;
         flex-direction: column;
@@ -157,21 +194,6 @@ def inject_antigravity_styles():
         padding: 20px;
         max-height: 70vh;
         overflow-y: auto;
-        background-image: radial-gradient(circle at 50% 50%, rgba(255, 184, 0, 0.02) 0%, transparent 80%);
-        border-radius: 20px;
     }
-
-    .message-row { display: flex; align-items: flex-end; gap: 8px; margin-bottom: 2px; }
-    .message-row.sent { justify-content: flex-end; }
-    .bubble {
-        padding: 10px 16px;
-        border-radius: 12px;
-        position: relative;
-        backdrop-filter: blur(12px);
-    }
-    .sent .bubble { background: #FFB800; color: #000; box-shadow: 0 4px 15px rgba(255,184,0,0.2); }
-    .received .bubble { background: rgba(255,255,255,0.06); color: #fff; border: 1px solid rgba(255,184,0,0.1); }
-    
-    .avatar { box-shadow: 0 0 15px rgba(255,184,0,0.2); }
     </style>
     """, unsafe_allow_html=True)

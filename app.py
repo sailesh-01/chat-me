@@ -14,22 +14,28 @@ utils.inject_antigravity_styles()
 # Authentication check
 if "user" not in st.session_state:
     st.session_state.auth_mode = st.session_state.get("auth_mode", "Login")
+    st.session_state.auth_error = st.session_state.get("auth_error", False)
     
     # Background Trigger for Login
     st.markdown('<div class="login-container"></div>', unsafe_allow_html=True)
     
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        st.markdown('<div class="glow-aura">', unsafe_allow_html=True)
+        st.markdown(f'<div class="glow-aura {"shake-error" if st.session_state.auth_error else ""}">', unsafe_allow_html=True)
         with st.container():
-            st.markdown("""
+            # Dynamic Header
+            header_title = "🐆 JAGUARS" if st.session_state.auth_mode == "Login" else "🐆 BECOME A HUNTER"
+            header_subtitle = "ELITE COMM-LINK" if st.session_state.auth_mode == "Login" else "JOIN THE PRIDE"
+            
+            st.markdown(f"""
             <div class="glass-card">
-                <h1 style='text-align: center; margin-bottom: 0; color: #FFB800;'>🐆 JAGUARS</h1>
-                <p style='text-align: center; opacity: 0.6; margin-bottom: 30px; letter-spacing: 2px;'>ELITE COMM-LINK</p>
+                <h1 style='text-align: center; margin-bottom: 0; color: #FFB800;'>{header_title}</h1>
+                <p style='text-align: center; opacity: 0.6; margin-bottom: 30px; letter-spacing: 2px;'>{header_subtitle}</p>
             </div>
             """, unsafe_allow_html=True)
             
-            mode = st.radio("Mode", ["Login", "Signup"], label_visibility="collapsed", horizontal=True)
+            mode = st.radio("Mode", ["Login", "Signup"], label_visibility="collapsed", horizontal=True, key="auth_toggle")
+            st.session_state.auth_mode = mode
             
             username = st.text_input("Username", placeholder="JAG ID")
             password = st.text_input("Password", type="password", placeholder="Access Key")
@@ -37,20 +43,27 @@ if "user" not in st.session_state:
             if mode == "Signup":
                 display_name = st.text_input("Display Name", placeholder="Callsign")
                 if st.button("Initialize Account", use_container_width=True):
-                    success, msg = auth.signup_user(username, password, display_name)
-                    if success:
-                        st.success(msg)
-                        time.sleep(1)
-                        st.rerun()
-                    else:
-                        st.error(msg)
+                    with st.spinner("Initializing Jaguar Profile..."):
+                        success, msg = auth.signup_user(username, password, display_name)
+                        if success:
+                            st.success(msg)
+                            st.session_state.auth_error = False
+                            time.sleep(1.5)
+                            st.rerun()
+                        else:
+                            st.error(msg)
+                            st.session_state.auth_error = True
+                            st.rerun()
             else:
                 if st.button("Establish Connection", use_container_width=True):
-                    if auth.login_user(username, password):
-                        st.rerun()
-                    else:
-                        st.error("Protocol Error: Invalid Credentials")
-        st.markdown('</div>', unsafe_allow_html=True)
+                    with st.spinner("Establishing Secure Comm-Link..."):
+                        if auth.login_user(username, password):
+                            st.session_state.auth_error = False
+                            st.rerun()
+                        else:
+                            st.session_state.auth_error = True
+                            st.error("Protocol Error: Invalid JAG ID or Access Key")
+                            st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
 else:
     # Sidebar Navigation
